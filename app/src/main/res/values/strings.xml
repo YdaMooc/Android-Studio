@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">IntelRobot</string>
+    <string-array name="welcome">
+        <item>主人，很开心和您开启聊天(✿◡‿◡)</item>
+        <item>主人，人家好无聊呀，来陪我耍吧</item>
+        <item>主人，您又来找人家耍了呀，不能耍太久哦，您还要好好复习呢</item>
+        <item>今天，我好累，不想和你聊天</item>
+        <item>小主人您复习的怎么样了</item>
+    </string-array>
+</resources>
