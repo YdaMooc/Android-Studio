@@ -10,7 +10,7 @@
         android:layout_height="45dp"
         android:gravity="center"
         android:background="#0cc4e5"
-        android:text="机器人"
+        android:text="多功能Bot"
         android:textColor="@android:color/white"
         android:textSize="20sp" />
     <RelativeLayout
