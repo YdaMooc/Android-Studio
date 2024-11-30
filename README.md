@@ -5,7 +5,7 @@
 
   ```cmd
   cd Server
-  node Server.js
+  node server.js
   ```
 
   如果启动报错了，就先运行下面这一条指令安装对应的包（能够运行就跳过这一步）。
