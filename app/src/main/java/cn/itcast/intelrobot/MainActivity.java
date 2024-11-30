@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private String welcome[];  //存储欢迎消息
     private MHandler mHandler;
     public static final int MSG_OK = 1;//获取数据
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         welcome = getResources().getStringArray(R.array.welcome);
         initView(); //初始化界面控件
     }
+
     public void initView() {
         rv_list = findViewById(R.id.rv_list);
         et_send_msg = findViewById(R.id.et_send_msg);
@@ -80,15 +82,20 @@ public class MainActivity extends AppCompatActivity {
         //获取一个随机数
         int position = (int) (Math.random() * welcome.length - 1);
         //用随机数获取机器人发送的欢迎消息
-        showData(welcome[position],ChatBean.RECEIVE);
+        showData(welcome[position], ChatBean.RECEIVE);
     }
-    private void showData(String message,int type) {
+
+    private void showData(String message, int type) {
         ChatBean chatBean = new ChatBean();
         chatBean.setMessage(message);
         chatBean.setState(type);             //type表示消息的类型
         chatBeanList.add(chatBean);         //将信息添加到chatBeanList集合中
         adapter.notifyDataSetChanged();
+
+//        rv_list.scrollToPosition(chatBeanList.size() - 1); // 即时滚动
+        rv_list.smoothScrollToPosition(chatBeanList.size() - 1); // 平滑滚动到最后一条消息（消息列表中的开始序号为0故-1）
     }
+
     private void sendData() {
         sendMsg = et_send_msg.getText().toString(); //获取用户输入的信息
         if (TextUtils.isEmpty(sendMsg)) {             //判断是否为空
@@ -98,9 +105,10 @@ public class MainActivity extends AppCompatActivity {
         et_send_msg.setText("");
         //替换空格和换行
         sendMsg = sendMsg.replaceAll(" ", "").replaceAll("\n", "").trim();
-        showData(sendMsg,ChatBean.SEND);
+        showData(sendMsg, ChatBean.SEND);
         getDataFromServer();              //从服务器获取机器人发送的消息
     }
+
     public JSONObject transJson(String text) {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -115,12 +123,13 @@ public class MainActivity extends AppCompatActivity {
         }
         return jsonObject;
     }
+
     private void getDataFromServer() {
         OkHttpClient okHttpClient = new OkHttpClient();
         //请求的数据类型设置为JSON格式
         MediaType JSON = MediaType.parse("application/json;charset=utf-8");
         JSONObject reqJson = transJson(sendMsg); //请求的JSON数据
-        RequestBody requestBody = RequestBody.Companion.create(String.valueOf(reqJson),JSON);
+        RequestBody requestBody = RequestBody.Companion.create(String.valueOf(reqJson), JSON);
         Request request = new Request.Builder().url(WEB_SITE).post(requestBody).build();
         Call call = okHttpClient.newCall(request);
         // 开启异步线程访问网络
@@ -128,17 +137,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String res = response.body().string();
-                Log.e("MainActivity","res=="+res);
+                Log.e("MainActivity", "res==" + res);
                 Message msg = new Message();
                 msg.what = MSG_OK;
                 msg.obj = res;
                 mHandler.sendMessage(msg);
             }
+
             @Override
             public void onFailure(Call call, IOException e) {
             }
         });
     }
+
     class MHandler extends Handler {
         @Override
         public void dispatchMessage(Message msg) {
@@ -153,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     private void parseData(String JsonData) {
         try {
             JSONObject obj = new JSONObject(JsonData);
@@ -161,33 +173,39 @@ public class MainActivity extends AppCompatActivity {
             JSONArray arr = obj.getJSONArray("results");
             JSONObject objRes = arr.getJSONObject(0);
             JSONObject objText = objRes.getJSONObject("values");
-            String content = objText.getString("text"); //获取机器人回复的消息
-            updateView(code, content);                      //更新界面
+            String content = objText.getString("text"); // 服务端返回的数据
+
+
+            updateView(code, content);
+            //更新界面
         } catch (JSONException e) {
             e.printStackTrace();
             showData("主人，你的网络不好哦", ChatBean.RECEIVE);
         }
     }
+
     private void updateView(int code, String content) {
         switch (code) {
             case 4001:
-                showData("主人，今天我累了，我要休息了，明天再来找我耍吧",ChatBean.RECEIVE);
+                showData("主人，今天我累了，我要休息了，明天再来找我耍吧", ChatBean.RECEIVE);
                 break;
             case 4002:
-                showData("主人，你说的是外星语吗？",ChatBean.RECEIVE);
+                showData("主人，你说的是外星语吗？", ChatBean.RECEIVE);
                 break;
             case 4003:
-                showData("主人，我今天要去约会哦，暂不接客啦",ChatBean.RECEIVE);
+                showData("主人，我今天要去约会哦，暂不接客啦", ChatBean.RECEIVE);
                 break;
             case 4005:
-                showData("主人，明天再和你耍啦，我生病了，呜呜......",ChatBean.RECEIVE);
+                showData("主人，明天再和你耍啦，我生病了，呜呜......", ChatBean.RECEIVE);
                 break;
             default:
-                showData(content,ChatBean.RECEIVE);
+                showData(content, ChatBean.RECEIVE);
                 break;
         }
     }
+
     protected long exitTime;//记录第一次点击时的时间
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
